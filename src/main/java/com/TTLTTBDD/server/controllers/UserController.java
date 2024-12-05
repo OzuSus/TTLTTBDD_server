@@ -20,16 +20,18 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @PostMapping("/id")
+    @GetMapping("/id")
     public Optional<UserDTO> getUserById(@RequestParam int id){
         return userService.getUserById(id);
     }
+
     @CrossOrigin(origins = {"http://localhost:58888"})
     @PostMapping("/login")
     public Optional<UserDTO> login(@RequestParam String username, @RequestParam String password) {
         return userService.login(username, password);
     }
 
+    @CrossOrigin(origins = {"http://localhost:58888"})
     @PostMapping("/register")
     public UserDTO register(@RequestBody User user) {
         return userService.register(user);
