@@ -39,7 +39,7 @@ public class User {
     @Column(name = "role", nullable = false)
     private Boolean role = false;
 
-    @Column(name = "avata", nullable = false, length = 50)
+    @Column(name = "avata", nullable = true, length = 50)
     private String avata;
 
 }
