@@ -31,7 +31,7 @@ public class UserService {
     }
 
     public UserDTO register(User user) {
-        Optional<User> existingUser = userRepository.findByUsernameAndPassword(user.getUsername(), user.getPassword());
+        Optional<User> existingUser = userRepository.findByUsernameAndEmail(user.getUsername(), user.getEmail());
         if (existingUser.isPresent()) {
             throw new IllegalArgumentException("Username already exists");
         }
@@ -48,6 +48,7 @@ public class UserService {
                 .phone(user.getPhone())
                 .email(user.getEmail())
                 .role(user.getRole())
+                .avata(user.getAvata())
                 .build();
     }
 }
