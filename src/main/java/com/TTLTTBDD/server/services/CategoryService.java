@@ -21,15 +21,16 @@ public class CategoryService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
+    public Optional<CategoryDTO> getCategoryById(int id) {
+        return categotyRepository.findCategoryById(id).map(this::convertToDTO);
+    }
+
     private CategoryDTO convertToDTO(Category category) {
         return CategoryDTO.builder()
                 .id(category.getId())
                 .name(category.getName())
                 .image(category.getImage())
                 .build();
-    }
-
-    public Optional<CategoryDTO> getCategoryById(int id) {
-        return categotyRepository.findCategoryById(id).map(this::convertToDTO);
     }
 }
