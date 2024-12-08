@@ -1,5 +1,6 @@
 package com.TTLTTBDD.server.models.dto;
 
+import com.TTLTTBDD.server.models.entity.Category;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -17,4 +18,5 @@ public class ProductDTO {
     private String description;
     private Integer reviewCount;
     private Double rating;
+    private Integer categoryID;
 }

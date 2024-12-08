@@ -37,6 +37,7 @@ public class ProductService {
                 .image(product.getImage())
                 .rating(product.getRating())
                 .reviewCount(product.getReview())
+                .categoryID(product.getIdCategory().getId())
                 .build();
     }
 
