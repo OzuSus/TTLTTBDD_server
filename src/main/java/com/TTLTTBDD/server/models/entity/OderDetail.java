@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @Entity
@@ -16,10 +14,18 @@ public class OderDetail {
     @Column(name = "id_order_detail", nullable = false)
     private Integer id;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_oder", nullable = false)
+    private Oder idOder;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_product", nullable = false)
+    private Product idProduct;
+
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
     @Column(name = "totalprice", nullable = false, length = 50)
     private Double totalprice;
-    //TODO [JPA Buddy] generate columns from DB
+
 }
