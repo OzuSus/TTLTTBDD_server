@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface FavoriteService {
     String addFavorite(Integer userId, Integer productId);
+    String removeFavoriteByUserIdAndProductId(Integer userId, Integer productId);
 
 
 }

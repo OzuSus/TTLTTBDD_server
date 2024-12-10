@@ -39,6 +39,22 @@ public class FavoriteServiceImpl implements FavoriteService {
         return "Thêm thành công vào danh sách yêu thích.";
     }
 
+    @Transactional
+    @Override
+    public String removeFavoriteByUserIdAndProductId(Integer userId, Integer productId) {
+        User user = userRepository.findById(userId).orElse(null);
+        Product product = productRepository.findById(productId).orElse(null);
+        if (user == null || product == null) {
+            return "User hoặc Product không tồn tại.";
+        }
+        if (!favoriteRepository.existsByIdUserAndIdProduct(user, product)) {
+            return "Favorite không tồn tại.";
+        }
+        favoriteRepository.deleteByIdUserAndIdProduct(user, product);
+        return "Xóa thành công product khỏi danh sách yêu thích.";
+    }
+
+
 
     private ProductDTO convertToDTO(Product product) {
         if (product == null) return null;

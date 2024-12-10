@@ -23,6 +23,15 @@ public class FavoriteController {
         return ResponseEntity.ok(result);
     }
 
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> removeFavoriteByUserIdAndProductId(@RequestParam Integer userId, @RequestParam Integer productId) {
+        String result = favoriteService.removeFavoriteByUserIdAndProductId(userId, productId);
+        if (result.contains("không tồn tại")) {
+            return ResponseEntity.badRequest().body(result);
+        }
+        return ResponseEntity.ok(result);
+    }
+
 
 
 }
