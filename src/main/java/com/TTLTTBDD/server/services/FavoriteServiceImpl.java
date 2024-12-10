@@ -54,7 +54,17 @@ public class FavoriteServiceImpl implements FavoriteService {
         return "Xóa thành công product khỏi danh sách yêu thích.";
     }
 
-
+    @Override
+    public List<ProductDTO> getFavoritesDTOByUserId(Integer userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return null;
+        }
+        return favoriteRepository.findAllByIdUser(user).stream()
+                .map(Favorite::getIdProduct)
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 
     private ProductDTO convertToDTO(Product product) {
         if (product == null) return null;
