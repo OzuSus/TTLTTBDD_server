@@ -14,5 +14,13 @@ public class Favorite {
     @Column(name = "id_favorite", nullable = false)
     private Integer id;
 
-    //TODO [JPA Buddy] generate columns from DB
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_user", nullable = false, referencedColumnName = "id_user")
+    private User idUser;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_product", nullable = false)
+    private Product idProduct;
+
 }
+
