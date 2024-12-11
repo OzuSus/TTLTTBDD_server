@@ -18,4 +18,8 @@ public class CartDetail {
     @JoinColumn(name = "id_cart", nullable = false)
     private Cart idCart;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_product", nullable = false)
+    private Product idProduct;
+
 }
