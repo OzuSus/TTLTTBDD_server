@@ -27,6 +27,12 @@ public class ProductService {
         return productRepository.findProductById(id).map(this::convertToDTO);
     }
 
+    public List<ProductDTO> getProductsByCategoryID(int idCategory){
+        return productRepository.findByIdCategory_Id (idCategory).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     private ProductDTO convertToDTO(Product product) {
         return ProductDTO.builder()
                 .id(product.getId())
