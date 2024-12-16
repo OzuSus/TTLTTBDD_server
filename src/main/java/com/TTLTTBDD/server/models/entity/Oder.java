@@ -22,4 +22,12 @@ public class Oder {
     @Column(name = "status", nullable = false, length = 50)
     private String status;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_user", nullable = false, referencedColumnName = "id_user")
+    private User idUser;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_payment_methop", nullable = false)
+    private PaymentMethop idPaymentMethop;
+
 }

@@ -35,4 +35,9 @@ public class Cart {
     public void setId_user(int id_user) {
         this.id_user = id_user;
     }
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_user", nullable = false, referencedColumnName = "id_user")
+    private User idUser;
+
+    //TODO [JPA Buddy] generate columns from DB
 }

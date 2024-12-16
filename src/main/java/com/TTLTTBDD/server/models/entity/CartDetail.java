@@ -57,4 +57,7 @@ public class CartDetail {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_product", nullable = false)
+    private Product idProduct;
 }
