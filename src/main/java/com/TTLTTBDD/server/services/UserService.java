@@ -44,21 +44,29 @@ public class UserService {
         return convertToDTO(savedUser);
     }
 
-    @Value("${upload.dir}")
-    private String uploadDir;
-    public UserDTO updateUser(UserDTO userDTO, MultipartFile avataFile) {
-        try {
-            if (avataFile != null && !avataFile.isEmpty()) {
-                String avatarPath = saveAvatar(avataFile);
-                userDTO.setAvata(avatarPath);
-            }
-            User user = userRepository.findById(userDTO.getId()).orElseThrow(() -> new RuntimeException("User not found"));
+    public UserDTO updateUserInfoAccount(UserDTO userDTO) {
+
+            User user = userRepository.findById(userDTO.getId()).orElseThrow(() -> new RuntimeException("Ko tìm thấy user"));
             user.setUsername(userDTO.getUsername());
             user.setFullname(userDTO.getFullname());
             user.setAddress(userDTO.getAddress());
             user.setPhone(userDTO.getPhone());
             user.setEmail(userDTO.getEmail());
-            user.setRole(userDTO.getRole());
+
+            userRepository.save(user);
+            return convertToDTO(user);
+
+    }
+
+    @Value("${upload.dir}")
+    private String uploadDir;
+    public UserDTO updateUserAvata(UserDTO userDTO, MultipartFile avataFile) {
+        try {
+            if (avataFile != null && !avataFile.isEmpty()) {
+                String avatarPath = saveAvatar(avataFile);
+                userDTO.setAvata(avatarPath);
+            }
+            User user = userRepository.findById(userDTO.getId()).orElseThrow(() -> new RuntimeException("Ko tìm thấy user"));
             user.setAvata(userDTO.getAvata());
 
             userRepository.save(user);

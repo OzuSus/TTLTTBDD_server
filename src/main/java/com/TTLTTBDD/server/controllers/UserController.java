@@ -38,8 +38,8 @@ public class UserController {
         return userService.register(user);
     }
 
-    @PutMapping("/update")
-    public UserDTO updateUser(@RequestParam("id") Integer id, @RequestParam("username") String username, @RequestParam("fullname") String fullname, @RequestParam("address") String address, @RequestParam("phone") String phone, @RequestParam("email") String email, @RequestParam("role") Boolean role, @RequestParam("avataFile") MultipartFile avataFile) {
+    @PutMapping("/updateInfoAccount")
+    public UserDTO updateUser(@RequestParam("id") Integer id, @RequestParam("username") String username, @RequestParam("fullname") String fullname, @RequestParam("address") String address, @RequestParam("phone") String phone, @RequestParam("email") String email) {
         UserDTO userDTO = UserDTO.builder()
                 .id(id)
                 .username(username)
@@ -47,8 +47,15 @@ public class UserController {
                 .address(address)
                 .phone(phone)
                 .email(email)
-                .role(role)
                 .build();
-        return userService.updateUser(userDTO, avataFile);
+        return userService.updateUserInfoAccount(userDTO);
+    }
+
+    @PutMapping("/updateAvata")
+    public UserDTO updateUser(@RequestParam("id") Integer id, @RequestParam("avataFile") MultipartFile avataFile) {
+        UserDTO userDTO = UserDTO.builder()
+                .id(id)
+                .build();
+        return userService.updateUserAvata(userDTO, avataFile);
     }
 }
