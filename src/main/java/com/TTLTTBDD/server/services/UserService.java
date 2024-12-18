@@ -4,10 +4,15 @@ import com.TTLTTBDD.server.models.dto.UserDTO;
 import com.TTLTTBDD.server.models.entity.User;
 import com.TTLTTBDD.server.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +42,42 @@ public class UserService {
         }
         User savedUser = userRepository.save(user);
         return convertToDTO(savedUser);
+    }
+
+    @Value("${upload.dir}")
+    private String uploadDir;
+    public UserDTO updateUser(UserDTO userDTO, MultipartFile avataFile) {
+        try {
+            if (avataFile != null && !avataFile.isEmpty()) {
+                String avatarPath = saveAvatar(avataFile);
+                userDTO.setAvata(avatarPath);
+            }
+            User user = userRepository.findById(userDTO.getId()).orElseThrow(() -> new RuntimeException("User not found"));
+            user.setUsername(userDTO.getUsername());
+            user.setFullname(userDTO.getFullname());
+            user.setAddress(userDTO.getAddress());
+            user.setPhone(userDTO.getPhone());
+            user.setEmail(userDTO.getEmail());
+            user.setRole(userDTO.getRole());
+            user.setAvata(userDTO.getAvata());
+
+            userRepository.save(user);
+            return convertToDTO(user);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to upload avatar", e);
+        }
+    }
+
+    // Lưu avatar vào thư mục upload
+    private String saveAvatar(MultipartFile avatarFile) throws IOException {
+        File directory = new File(uploadDir);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+        String fileName = UUID.randomUUID() + "_" + avatarFile.getOriginalFilename();
+        File file = new File(uploadDir + fileName);
+        avatarFile.transferTo(file);
+        return fileName;
     }
 
     private UserDTO convertToDTO(User user) {
