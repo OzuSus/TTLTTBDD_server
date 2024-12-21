@@ -1,6 +1,5 @@
 package com.TTLTTBDD.server.services;
 
-
 import com.TTLTTBDD.server.models.entity.Cart;
 import com.TTLTTBDD.server.models.entity.CartDetail;
 import com.TTLTTBDD.server.repositories.CartDetailRepository;
@@ -19,46 +18,29 @@ public class CartService {
     @Autowired
     private CartDetailRepository cartDetailRepository;
 
-    public void addProductToCart(int userId, int id_product, int quantity) {
-        // Tìm giỏ hàng theo user
-        Cart cart = cartRepository.findByUserId(userId)
-                .orElseGet(() -> {
-                    // Tạo giỏ hàng mới nếu chưa có
-                    Cart newCart = new Cart();
-                    newCart.setId_user(userId);
-                    return cartRepository.save(newCart);
-                });
+    public void addProductToCart(Integer idUser, Integer idProduct) {
+        Cart cart = cartRepository.findByIdUser(idUser);
+        if (cart == null) {
+            cart = new Cart();
+            cart.setIdUser(idUser);
+            cart = cartRepository.save(cart);
+        }
 
-        // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng hay chưa
-        CartDetail cartDetail = cartDetailRepository.findByCartIdAndProductId(cart.getId_cart(), id_product)
-                .orElseGet(() -> {
-                    CartDetail newCartDetail = new CartDetail();
-                    newCartDetail.setId_cart(cart.getId_cart());
-                    newCartDetail.setId_product(id_product);
-                    newCartDetail.setQuantity(0);
-                    return newCartDetail;
-                });
-
-        // Cập nhật số lượng
-        cartDetail.setQuantity(cartDetail.getQuantity() + quantity);
+        CartDetail cartDetail = new CartDetail();
+        cartDetail.setCart(cart);
+        cartDetail.setIdProduct(idProduct);
         cartDetailRepository.save(cartDetail);
     }
 
-    public void removeProductFromCart(int userId, int productId) {
-        // Tìm giỏ hàng theo user
-        Cart cart = cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Cart not found for user id: " + userId));
-
-        // Xóa sản phẩm khỏi giỏ hàng
-        cartDetailRepository.deleteByCartIdAndProductId(cart.getId_cart(), productId);
+    public void removeProductFromCart(Integer idCartDetail) {
+        cartDetailRepository.deleteById(idCartDetail);
     }
 
-    public List<CartDetail> getAllProductsInCart(int userId) {
-        // Tìm giỏ hàng theo user
-        Cart cart = cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Cart not found for user id: " + userId));
-
-        // Lấy tất cả sản phẩm trong giỏ hàng
-        return cartDetailRepository.findByCartId(cart.getId_cart());
+    public List<CartDetail> getCartDetailsByUser(Integer idUser) {
+        Cart cart = cartRepository.findByIdUser(idUser);
+        if (cart != null) {
+            return cartDetailRepository.findByCart_IdCart(cart.getIdCart());
+        }
+        return List.of();
     }
 }
