@@ -17,7 +17,7 @@ public class loadFile {
         if (!directory.exists()) {
             directory.mkdirs();
         }
-        String fileName = UUID.randomUUID() + "_" + File.getOriginalFilename();
+        String fileName =File.getOriginalFilename();
         File file = new File(uploadDir + fileName);
         File.transferTo(file);
         return fileName;
