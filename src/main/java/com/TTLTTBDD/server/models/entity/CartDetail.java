@@ -1,50 +1,46 @@
 package com.TTLTTBDD.server.models.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 @Entity
-@Table(name = "cart_detail")
 public class CartDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_cartdetail")
-    private Integer idCartDetail;
+    private int idCartDetail;
 
     @ManyToOne
-    @JoinColumn(name = "id_cart", nullable = false)
-    private Cart cart;
+    @JoinColumn(name = "id_cart")
+    private Cart idCart;
 
-    @Column(name = "id_product", nullable = false)
-    private Integer idProduct;
+    @ManyToOne
+    @JoinColumn(name = "id_product")
+    private Product idProduct;
 
-    public Integer getIdCartDetail() {
+    public CartDetail() {
+    }
+
+    public int getIdCartDetail() {
         return idCartDetail;
     }
 
-    public void setIdCartDetail(Integer idCartDetail) {
+    public void setIdCartDetail(int idCartDetail) {
         this.idCartDetail = idCartDetail;
     }
 
-    public Cart getCart() {
-        return cart;
+    public Cart getIdCart() {
+        return idCart;
     }
 
-    public void setCart(Cart cart) {
-        this.cart = cart;
+    public void setIdCart(Cart idCart) {
+        this.idCart = idCart;
     }
 
-    public Integer getIdProduct() {
+    public Product getIdProduct() {
         return idProduct;
     }
 
-    public void setIdProduct(Integer idProduct) {
+    public void setIdProduct(Product idProduct) {
         this.idProduct = idProduct;
     }
 }
-
-

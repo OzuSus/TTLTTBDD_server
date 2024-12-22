@@ -1,10 +1,8 @@
 package com.TTLTTBDD.server.controllers;
 
-import com.TTLTTBDD.server.models.dto.AddToCartRequest;
 import com.TTLTTBDD.server.models.entity.CartDetail;
 import com.TTLTTBDD.server.services.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,24 +15,21 @@ public class CartController {
     @Autowired
     private CartService cartService;
 
-    // Thêm sản phẩm vào giỏ hàng
-    @PostMapping
-    public String addProductToCart(@RequestBody AddToCartRequest request) {
-        cartService.addProductToCart(request.getIdUser(), request.getIdProduct());
-        return "Product added to cart successfully!";
+    // API thêm sản phẩm trong giỏ hàng của người dùng
+    @GetMapping("/{userId}")
+    public List<CartDetail> getCartDetail(@PathVariable int userId) {
+        return cartService.getCartDetail(userId);
+    }
+    // API thêm sản phẩm vào giỏ hàng
+    @PostMapping("/{userId}/add")
+    public CartDetail addProductToCart(@PathVariable int userId, @RequestParam int productId) {
+        return cartService.addProductToCart(userId, productId);
+    }
+    // API xóa sản phẩm khỏi giỏ hàng
+    @DeleteMapping("/{userId}/remove")
+    public void removeProductFromCart(@PathVariable int userId, @RequestParam int productId) {
+        cartService.removeProductFromCart(userId, productId);
     }
 
-    // Xóa sản phẩm khỏi giỏ hàng
-    @DeleteMapping("/{idCartDetail}")
-    public String removeProductFromCart(@PathVariable Integer idCartDetail) {
-        cartService.removeProductFromCart(idCartDetail);
-        return "Product removed from cart successfully!";
-    }
 
-    // Lấy danh sách sản phẩm trong giỏ hàng
-    @GetMapping("/{idUser}")
-    public List<CartDetail> getCartDetailsByUser(@PathVariable Integer idUser) {
-        return cartService.getCartDetailsByUser(idUser);
-    }
 }
-
