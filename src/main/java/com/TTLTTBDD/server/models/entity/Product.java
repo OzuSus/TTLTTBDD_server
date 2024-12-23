@@ -16,7 +16,7 @@ public class Product {
     @Column(name = "id_product", nullable = false)
     private Integer id;
 
-    @Column(name = "review", nullable = false)
+    @Column(name = "review", nullable = true)
     private Integer review;
 
     @Column(name = "name", nullable = false, length = 50)
@@ -28,7 +28,7 @@ public class Product {
     @Column(name = "quantity", nullable = false, precision = 10)
     private BigDecimal quantity;
 
-    @Column(name = "rating", nullable = false)
+    @Column(name = "rating", nullable = true)
     private Double rating;
 
     @Column(name = "image", nullable = false, length = 50)
