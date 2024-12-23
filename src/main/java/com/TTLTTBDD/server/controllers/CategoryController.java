@@ -63,4 +63,28 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    @PutMapping("/updateImageCategory/{id}")
+    public ResponseEntity<CategoryDTO> updateCategoryImage(
+            @PathVariable int id,
+            @RequestParam(value = "image", required = false) MultipartFile image) {
+        try {
+            String fileName = null;
+            if (image != null) {
+                fileName = fileUploader.saveFile(image);
+            }
+            CategoryDTO updatedCategory = categoryService.updateCategoryImage(id, fileName);
+            return ResponseEntity.ok(updatedCategory);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/updateNameCategory/{id}")
+    public ResponseEntity<CategoryDTO> updateCategoryName(
+            @PathVariable int id,
+            @RequestParam("name") String name) {
+        CategoryDTO updatedCategory = categoryService.updateCategoryName(id, name);
+        return ResponseEntity.ok(updatedCategory);
+    }
+
 }

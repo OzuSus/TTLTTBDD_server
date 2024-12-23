@@ -47,7 +47,23 @@ public class CategoryService {
         categotyRepository.save(category);
         return convertToDTO(category);
     }
+    public CategoryDTO updateCategoryImage(int id, String image) {
+        Category category = categotyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
 
+        if (image != null) {
+            category.setImage(image);
+        }
+        categotyRepository.save(category);
+        return convertToDTO(category);
+    }
+    public CategoryDTO updateCategoryName(int id, String name) {
+        Category category = categotyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        category.setName(name);
+        categotyRepository.save(category);
+        return convertToDTO(category);
+    }
     private CategoryDTO convertToDTO(Category category) {
         return CategoryDTO.builder()
                 .id(category.getId())
