@@ -25,4 +25,9 @@ public class ProductController {
         return productService.getProductById(id);
     }
 
+    @GetMapping("/idCategory")
+    public List<ProductDTO> getProductsByCategoryID(@RequestParam int idCategory){
+        return productService.getProductsByCategoryID(idCategory);
+    }
+
 }
