@@ -3,6 +3,7 @@ package com.TTLTTBDD.server.services;
 import com.TTLTTBDD.server.models.dto.ProductDTO;
 import com.TTLTTBDD.server.models.dto.UserDTO;
 import com.TTLTTBDD.server.models.entity.Product;
+import com.TTLTTBDD.server.models.entity.User;
 import com.TTLTTBDD.server.repositories.ProductRepository;
 import com.TTLTTBDD.server.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,13 @@ public class ProductService {
         return productRepository.findByIdCategory_Id (idCategory).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+    public ProductDTO create(Product product) {
+        Product product1 = productRepository.save(product);
+        return convertToDTO(product1);
+    }
+    public void deleteProduct(int idProduct){
+        productRepository.deleteById(idProduct);
     }
 
     private ProductDTO convertToDTO(Product product) {
