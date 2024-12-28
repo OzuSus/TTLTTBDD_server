@@ -2,6 +2,7 @@ package com.TTLTTBDD.server.services;
 
 
 import com.TTLTTBDD.server.models.dto.CartDetailDTO;
+import com.TTLTTBDD.server.models.dto.ProductDTO;
 import com.TTLTTBDD.server.models.entity.Cart;
 import com.TTLTTBDD.server.models.entity.CartDetail;
 import com.TTLTTBDD.server.models.entity.Product;
@@ -10,6 +11,9 @@ import com.TTLTTBDD.server.repositories.CartRepository;
 import com.TTLTTBDD.server.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CartDetailService {
@@ -50,6 +54,30 @@ public class CartDetailService {
                 .orElseThrow(() -> new IllegalArgumentException("CartDetail không tồn tại."));
 
         cartDetailRepository.delete(cartDetail);
+    }
+
+    public List<ProductDTO> getProductsInCartByUserId(Integer idUser) {
+        Cart cart = cartRepository.findByIdUser_Id(idUser)
+                .orElseThrow(() -> new IllegalArgumentException("Cart không tồn tại cho User này."));
+
+        List<CartDetail> cartDetails = cartDetailRepository.findAllByIdCart_Id(cart.getId());
+
+        return cartDetails.stream()
+                .map(cartDetail -> {
+                    Product product = cartDetail.getIdProduct();
+                    return ProductDTO.builder()
+                            .id(product.getId())
+                            .name(product.getName())
+                            .price(product.getPrize())
+                            .quantity(product.getQuantity())
+                            .image(product.getImage())
+                            .description(product.getDescription())
+                            .reviewCount(product.getReview())
+                            .rating(product.getRating())
+                            .categoryID(product.getIdCategory().getId())
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }
 

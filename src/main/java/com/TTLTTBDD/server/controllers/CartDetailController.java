@@ -1,11 +1,14 @@
 package com.TTLTTBDD.server.controllers;
 
 import com.TTLTTBDD.server.models.dto.CartDetailDTO;
+import com.TTLTTBDD.server.models.dto.ProductDTO;
 import com.TTLTTBDD.server.models.entity.CartDetail;
 import com.TTLTTBDD.server.services.CartDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/cart-details")
@@ -29,5 +32,11 @@ public class CartDetailController {
         cartDetailService.removeProductFromCartDetail(idUser, idProduct);
 
         return ResponseEntity.ok("Sản phẩm đã được xóa khỏi giỏ hàng.");
+    }
+    @GetMapping("/user-products")
+    public ResponseEntity<List<ProductDTO>> getProductsInCart(
+            @RequestParam Integer idUser) {
+        List<ProductDTO> products = cartDetailService.getProductsInCartByUserId(idUser);
+        return ResponseEntity.ok(products);
     }
 }
