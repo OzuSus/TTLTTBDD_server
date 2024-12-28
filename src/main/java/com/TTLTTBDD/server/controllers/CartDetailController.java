@@ -22,4 +22,12 @@ public class CartDetailController {
 
         return ResponseEntity.ok(cartDetailDTO);
     }
+    @DeleteMapping("/remove")
+    public ResponseEntity<String> removeProductFromCartDetail(
+            @RequestParam Integer idUser,
+            @RequestParam Integer idProduct) {
+        cartDetailService.removeProductFromCartDetail(idUser, idProduct);
+
+        return ResponseEntity.ok("Sản phẩm đã được xóa khỏi giỏ hàng.");
+    }
 }

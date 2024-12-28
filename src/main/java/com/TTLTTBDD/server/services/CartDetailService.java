@@ -41,5 +41,15 @@ public class CartDetailService {
                 savedCartDetail.getIdProduct().getId()
         );
     }
+
+    public void removeProductFromCartDetail(Integer idUser, Integer idProduct) {
+        Cart cart = cartRepository.findByIdUser_Id(idUser)
+                .orElseThrow(() -> new IllegalArgumentException("Cart không tồn tại cho User này."));
+
+        CartDetail cartDetail = cartDetailRepository.findByIdCart_IdAndIdProduct_Id(cart.getId(), idProduct)
+                .orElseThrow(() -> new IllegalArgumentException("CartDetail không tồn tại."));
+
+        cartDetailRepository.delete(cartDetail);
+    }
 }
 
