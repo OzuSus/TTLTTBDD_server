@@ -1,7 +1,9 @@
 package com.TTLTTBDD.server.services;
 
 import com.TTLTTBDD.server.models.dto.UserDTO;
+import com.TTLTTBDD.server.models.entity.Cart;
 import com.TTLTTBDD.server.models.entity.User;
+import com.TTLTTBDD.server.repositories.CartRepository;
 import com.TTLTTBDD.server.repositories.UserRepository;
 import com.TTLTTBDD.server.utils.loadFile;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CartRepository cartRepository;
     private loadFile loadFile = new loadFile();
 
     public List<UserDTO> getAllUsers() {
@@ -43,6 +47,9 @@ public class UserService {
             throw new IllegalArgumentException("Username already exists");
         }
         User savedUser = userRepository.save(user);
+        Cart newCart = new Cart();
+        newCart.setIdUser(savedUser);
+        cartRepository.save(newCart);
         return convertToDTO(savedUser);
     }
 
