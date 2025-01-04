@@ -12,6 +12,7 @@ import com.TTLTTBDD.server.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,16 +34,32 @@ public class CartDetailService {
         Product product = productRepository.findById(idProduct)
                 .orElseThrow(() -> new IllegalArgumentException("Product không tồn tại."));
 
-        CartDetail cartDetail = new CartDetail();
-        cartDetail.setIdCart(cart);
-        cartDetail.setIdProduct(product);
+        if (product.getQuantity().compareTo(BigDecimal.ONE) < 0) {
+            throw new IllegalArgumentException("Sản phẩm không còn đủ hàng trong kho.");
+        }
+
+        CartDetail cartDetail = cartDetailRepository.findByIdCart_IdAndIdProduct_Id(cart.getId(), idProduct)
+                .orElseGet(() -> {
+                    CartDetail newCartDetail = new CartDetail();
+                    newCartDetail.setIdCart(cart);
+                    newCartDetail.setIdProduct(product);
+                    newCartDetail.setQuantity(1);
+                    return newCartDetail;
+                });
+
+        if (cartDetail.getId() != null) {
+            cartDetail.setQuantity(cartDetail.getQuantity() + 1);
+        }
+        product.setQuantity(product.getQuantity().subtract(BigDecimal.ONE));
+        productRepository.save(product);
 
         CartDetail savedCartDetail = cartDetailRepository.save(cartDetail);
 
         return new CartDetailDTO(
                 savedCartDetail.getId(),
                 savedCartDetail.getIdCart().getId(),
-                savedCartDetail.getIdProduct().getId()
+                savedCartDetail.getIdProduct().getId(),
+                savedCartDetail.getQuantity()
         );
     }
 
@@ -69,7 +86,7 @@ public class CartDetailService {
                             .id(product.getId())
                             .name(product.getName())
                             .price(product.getPrize())
-                            .quantity(product.getQuantity())
+                            .quantity(BigDecimal.valueOf(cartDetail.getQuantity())) // Lấy số lượng từ cartDetail
                             .image(product.getImage())
                             .description(product.getDescription())
                             .reviewCount(product.getReview())
@@ -78,6 +95,52 @@ public class CartDetailService {
                             .build();
                 })
                 .collect(Collectors.toList());
+    }
+    public CartDetailDTO increaseProductQuantity(Integer idUser, Integer idProduct) {
+        Cart cart = cartRepository.findByIdUser_Id(idUser)
+                .orElseThrow(() -> new IllegalArgumentException("Cart không tồn tại cho User này."));
+
+        Product product = productRepository.findById(idProduct)
+                .orElseThrow(() -> new IllegalArgumentException("Product không tồn tại."));
+
+        if (product.getQuantity().compareTo(BigDecimal.ONE) < 0) {
+            throw new IllegalArgumentException("Sản phẩm không còn đủ hàng trong kho.");
+        }
+
+        CartDetail cartDetail = cartDetailRepository.findByIdCart_IdAndIdProduct_Id(cart.getId(), idProduct)
+                .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại trong giỏ hàng."));
+
+        cartDetail.setQuantity(cartDetail.getQuantity() + 1);
+        product.setQuantity(product.getQuantity().subtract(BigDecimal.ONE));
+
+        productRepository.save(product);
+        CartDetail updatedCartDetail = cartDetailRepository.save(cartDetail);
+
+        return new CartDetailDTO(
+                updatedCartDetail.getId(),
+                updatedCartDetail.getIdCart().getId(),
+                updatedCartDetail.getIdProduct().getId(),
+                updatedCartDetail.getQuantity()
+        );
+    }
+
+    public void decreaseProductQuantity(Integer idUser, Integer idProduct) {
+        Cart cart = cartRepository.findByIdUser_Id(idUser)
+                .orElseThrow(() -> new IllegalArgumentException("Cart không tồn tại cho User này."));
+
+        CartDetail cartDetail = cartDetailRepository.findByIdCart_IdAndIdProduct_Id(cart.getId(), idProduct)
+                .orElseThrow(() -> new IllegalArgumentException("Sản phẩm không tồn tại trong giỏ hàng."));
+
+        if (cartDetail.getQuantity() == 1) {
+
+        } else {
+            cartDetail.setQuantity(cartDetail.getQuantity() - 1);
+            cartDetailRepository.save(cartDetail);
+        }
+
+        Product product = cartDetail.getIdProduct();
+        product.setQuantity(product.getQuantity().add(BigDecimal.ONE));
+        productRepository.save(product);
     }
 }
 
