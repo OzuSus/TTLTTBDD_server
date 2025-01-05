@@ -39,4 +39,20 @@ public class CartDetailController {
         List<ProductDTO> products = cartDetailService.getProductsInCartByUserId(idUser);
         return ResponseEntity.ok(products);
     }
+    @CrossOrigin(origins = "http://localhost:31415")
+    @PostMapping("/increase-quantity")
+    public ResponseEntity<CartDetailDTO> increaseProductQuantity(
+            @RequestParam Integer idUser,
+            @RequestParam Integer idProduct) {
+        CartDetailDTO updatedCartDetail = cartDetailService.increaseProductQuantity(idUser, idProduct);
+        return ResponseEntity.ok(updatedCartDetail);
+    }
+    @CrossOrigin(origins = "http://localhost:31415")
+    @PostMapping("/decrease-quantity")
+    public ResponseEntity<String> decreaseProductQuantity(
+            @RequestParam Integer idUser,
+            @RequestParam Integer idProduct) {
+        cartDetailService.decreaseProductQuantity(idUser, idProduct);
+        return ResponseEntity.ok("Số lượng sản phẩm đã được cập nhật.");
+    }
 }

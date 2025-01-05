@@ -21,7 +21,7 @@ public class User {
     private String username;
 
     @NotNull
-    @Column(name = "password", nullable = false, length = 50)
+    @Column(name = "password", nullable = false, length = 255)
     private String password;
 
     @Column(name = "fullname", nullable = false, length = 50)
