@@ -8,6 +8,7 @@ import com.TTLTTBDD.server.repositories.UserRepository;
 import com.TTLTTBDD.server.utils.loadFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +26,7 @@ public class UserService {
     @Autowired
     private CartRepository cartRepository;
     private loadFile loadFile = new loadFile();
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream()
@@ -37,8 +39,11 @@ public class UserService {
     }
 
     public Optional<UserDTO> login(String username, String password) {
-        return userRepository.findByUsernameAndPassword(username, password)
-                .map(this::convertToDTO);
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
+            return Optional.of(convertToDTO(user.get()));
+        }
+        return Optional.empty();
     }
 
     public UserDTO register(User user) {
@@ -46,6 +51,11 @@ public class UserService {
         if (existingUser.isPresent()) {
             throw new IllegalArgumentException("Username already exists");
         }
+
+        // Mã hóa mật khẩu trước khi lưu
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+
         User savedUser = userRepository.save(user);
         Cart newCart = new Cart();
         newCart.setIdUser(savedUser);
