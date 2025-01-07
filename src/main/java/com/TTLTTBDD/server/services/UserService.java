@@ -3,13 +3,16 @@ package com.TTLTTBDD.server.services;
 import com.TTLTTBDD.server.models.dto.UserDTO;
 import com.TTLTTBDD.server.models.entity.Cart;
 import com.TTLTTBDD.server.models.entity.User;
+import com.TTLTTBDD.server.repositories.CartDetailRepository;
 import com.TTLTTBDD.server.repositories.CartRepository;
+import com.TTLTTBDD.server.repositories.FavoriteRepository;
 import com.TTLTTBDD.server.repositories.UserRepository;
 import com.TTLTTBDD.server.utils.loadFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -23,8 +26,12 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private CartRepository cartRepository;
+    @Autowired
+    private CartDetailRepository cartDetailRepository;
     private loadFile loadFile = new loadFile();
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @Autowired
+    private FavoriteRepository favoriteRepository;
 
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream()
@@ -125,10 +132,25 @@ public class UserService {
         }
     }
 
-
+    @Transactional
     public void deleteUser(int id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Xóa các bản ghi trong bảng favorite trước
+        favoriteRepository.deleteAllByIdUser(user);
+
+        // Tìm Cart của User theo ID
+        Optional<Cart> cartOptional = cartRepository.findByIdUser_Id(user.getId());
+        if (cartOptional.isPresent()) {
+            // Xóa CartDetail liên quan đến Cart
+            cartDetailRepository.deleteAllByIdCart(cartOptional.get());
+
+            // Xóa Cart
+            cartRepository.delete(cartOptional.get());
+        }
+
+        // Cuối cùng xóa User
         userRepository.delete(user);
     }
 
