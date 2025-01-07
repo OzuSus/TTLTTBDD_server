@@ -3,20 +3,21 @@ package com.TTLTTBDD.server.services;
 import com.TTLTTBDD.server.models.dto.UserDTO;
 import com.TTLTTBDD.server.models.entity.Cart;
 import com.TTLTTBDD.server.models.entity.User;
+import com.TTLTTBDD.server.repositories.CartDetailRepository;
 import com.TTLTTBDD.server.repositories.CartRepository;
+import com.TTLTTBDD.server.repositories.FavoriteRepository;
 import com.TTLTTBDD.server.repositories.UserRepository;
 import com.TTLTTBDD.server.utils.loadFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,8 +26,12 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private CartRepository cartRepository;
+    @Autowired
+    private CartDetailRepository cartDetailRepository;
     private loadFile loadFile = new loadFile();
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @Autowired
+    private FavoriteRepository favoriteRepository;
 
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream()
@@ -90,6 +95,63 @@ public class UserService {
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload avatar", e);
         }
+    }
+
+    public UserDTO updateUser(UserDTO userDTO, MultipartFile avataFile) {
+        try {
+            // Kiểm tra nếu có avatar mới, nếu không thì không thay đổi avatar trong DB
+            if (avataFile != null && !avataFile.isEmpty()) {
+                String avatarPath = loadFile.saveFile(avataFile);  // Lưu avatar mới
+                userDTO.setAvata(avatarPath);  // Cập nhật avatar trong DTO
+            }
+
+            // Tìm người dùng trong DB và cập nhật thông tin
+            User user = userRepository.findById(userDTO.getId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+
+            // Cập nhật các thông tin khác của người dùng
+            user.setUsername(userDTO.getUsername());
+            user.setFullname(userDTO.getFullname());
+            user.setAddress(userDTO.getAddress());
+            user.setPhone(userDTO.getPhone());
+            user.setEmail(userDTO.getEmail());
+            user.setRole(userDTO.getRole());
+
+            // Nếu avatar không được thay đổi, không cần set lại avatar trong DB
+            if (userDTO.getAvata() != null) {
+                user.setAvata(userDTO.getAvata());
+            }
+
+            // Lưu người dùng đã được cập nhật
+            userRepository.save(user);
+
+            // Trả về UserDTO đã cập nhật
+            return convertToDTO(user);
+        } catch (IOException e) {
+            throw new RuntimeException("Lỗi khi tải lên avatar", e);
+        }
+    }
+
+    @Transactional
+    public void deleteUser(int id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Xóa các bản ghi trong bảng favorite trước
+        favoriteRepository.deleteAllByIdUser(user);
+
+        // Tìm Cart của User theo ID
+        Optional<Cart> cartOptional = cartRepository.findByIdUser_Id(user.getId());
+        if (cartOptional.isPresent()) {
+            // Xóa CartDetail liên quan đến Cart
+            cartDetailRepository.deleteAllByIdCart(cartOptional.get());
+
+            // Xóa Cart
+            cartRepository.delete(cartOptional.get());
+        }
+
+        // Cuối cùng xóa User
+        userRepository.delete(user);
     }
 
     private UserDTO convertToDTO(User user) {
