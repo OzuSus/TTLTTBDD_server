@@ -56,6 +56,37 @@ public class UserController {
         UserDTO userDTO = UserDTO.builder()
                 .id(id)
                 .build();
-        return userService.updateUserAvata(userDTO, avataFile);
+        return userService.updateUserAvata(userDTO, avataFile); 
+    }
+
+    @PutMapping("/update")
+    public UserDTO updateUser(
+            @RequestParam("id") Integer id,
+            @RequestParam("username") String username,
+            @RequestParam("fullname") String fullname,
+            @RequestParam("address") String address,
+            @RequestParam("phone") String phone,
+            @RequestParam("email") String email,
+            @RequestParam("role") boolean role,
+            @RequestParam(value = "avataFile", required = false) MultipartFile avataFile) {
+
+        UserDTO userDTO = UserDTO.builder()
+                .id(id)
+                .username(username)
+                .fullname(fullname)
+                .address(address)
+                .phone(phone)
+                .email(email)
+                .role(role)
+                .build();
+
+        return userService.updateUser(userDTO, avataFile);  // Chuyển file avatar nếu có, nếu không thì null
+    }
+
+
+    @DeleteMapping("/delete/{id}")
+    public String deleteUser(@PathVariable("id") Integer id) {
+        userService.deleteUser(id);
+        return "User with ID " + id + " has been deleted.";
     }
 }
