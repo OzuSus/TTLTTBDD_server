@@ -22,4 +22,7 @@ public class CartDetail {
     @JoinColumn(name = "id_product", nullable = false)
     private Product idProduct;
 
+    @Column(name = "quantity", nullable = false)
+    private Integer quantity;
+
 }

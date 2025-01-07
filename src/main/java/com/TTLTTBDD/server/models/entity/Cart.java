@@ -18,5 +18,4 @@ public class Cart {
     @JoinColumn(name = "id_user", nullable = false, referencedColumnName = "id_user")
     private User idUser;
 
-    //TODO [JPA Buddy] generate columns from DB
 }

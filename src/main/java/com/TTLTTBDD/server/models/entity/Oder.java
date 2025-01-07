@@ -16,18 +16,19 @@ public class Oder {
     @Column(name = "id_oder", nullable = false)
     private Integer id;
 
-    @Column(name = "dateOrder", nullable = false)
-    private LocalDate dateOrder;
-
-    @Column(name = "status", nullable = false, length = 50)
-    private String status;
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_user", nullable = false, referencedColumnName = "id_user")
     private User idUser;
 
+    @Column(name = "dateOrder", nullable = false)
+    private LocalDate dateOrder;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_payment_methop", nullable = false)
     private PaymentMethop idPaymentMethop;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_status", nullable = false)
+    private Status idStatus;
 
 }
