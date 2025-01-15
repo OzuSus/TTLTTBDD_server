@@ -3,6 +3,7 @@ package com.TTLTTBDD.server.services;
 import com.TTLTTBDD.server.models.dto.*;
 import com.TTLTTBDD.server.models.entity.*;
 import com.TTLTTBDD.server.repositories.*;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -83,6 +84,10 @@ public class OderService {
                 .id(oder.getIdStatus().getId())
                 .name(oder.getIdStatus().getName())
                 .build();
+        List<OderDetailDTO> oderDetailDTOList = oderDetailRepository.findByIdOder_Id(oder.getId()).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        System.out.println("Found " + oderDetailDTOList.size() + " OderDetail(s) for order ID " + oder.getId());
 
         return OrderDTO.builder()
                 .idOrder(oder.getId())
@@ -90,6 +95,7 @@ public class OderService {
                 .dateOrder(oder.getDateOrder())
                 .paymentMethodName(oder.getIdPaymentMethop().getTypePayment())
                 .statusName(statusDTO)
+                .orderDetails(oderDetailDTOList)
                 .build();
     }
     private OderDetailDTO convertToDTO(OderDetail oder) {
