@@ -1,8 +1,10 @@
 package com.TTLTTBDD.server.services;
 
+import com.TTLTTBDD.server.models.dto.*;
 import com.TTLTTBDD.server.models.dto.ProductOrderDTO;
 import com.TTLTTBDD.server.models.entity.*;
 import com.TTLTTBDD.server.repositories.*;
+import lombok.extern.java.Log;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -74,6 +77,58 @@ public class OderService {
         }
 
         cartDetailRepository.deleteAll(cartDetails);
+    }
+    public List<OrderDTO> getOrdersByUserId(int userId) {
+        List<Oder> orders = oderRepository.findByIdUser_Id(userId);
+        return orders.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    public List<OderDetailDTO> getOrderDetailsByIdOder_Id(int orderId){
+        List<OderDetail> orders = oderDetailRepository.findByIdOder_Id(orderId);
+        return orders.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private OrderDTO convertToDTO(Oder oder) {
+        StatusDTO statusDTO = StatusDTO.builder()
+                .id(oder.getIdStatus().getId())
+                .name(oder.getIdStatus().getName())
+                .build();
+        List<OderDetailDTO> oderDetailDTOList = oderDetailRepository.findByIdOder_Id(oder.getId()).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        System.out.println("Found " + oderDetailDTOList.size() + " OderDetail(s) for order ID " + oder.getId());
+
+        return OrderDTO.builder()
+                .idOrder(oder.getId())
+                .userId(oder.getIdUser().getId())
+                .dateOrder(oder.getDateOrder())
+                .paymentMethodName(oder.getIdPaymentMethop().getTypePayment())
+                .statusName(statusDTO)
+                .orderDetails(oderDetailDTOList)
+                .build();
+    }
+    private OderDetailDTO convertToDTO(OderDetail oder) {
+        ProductDTO productDTO = ProductDTO.builder()
+                .id(oder.getIdProduct().getId())
+                .name(oder.getIdProduct().getName())
+                .price(oder.getIdProduct().getPrize())
+                .quantity(oder.getIdProduct().getQuantity())
+                .image(oder.getIdProduct().getImage())
+                .description(oder.getIdProduct().getDescription())
+                .reviewCount(oder.getIdProduct().getReview())
+                .rating(oder.getIdProduct().getRating())
+                .categoryID(oder.getIdProduct().getIdCategory().getId())
+                .build();
+        return OderDetailDTO.builder()
+                .id(oder.getId())
+                .idOder(oder.getIdOder().getId())
+                .idProduct(productDTO)
+                .quantity(oder.getQuantity())
+                .totalprice(oder.getTotalprice())
+                .build();
     }
 
     // Thêm phương thức này vào OderService
