@@ -1,7 +1,9 @@
 package com.TTLTTBDD.server.services;
 
+import com.TTLTTBDD.server.models.dto.ProductOrderDTO;
 import com.TTLTTBDD.server.models.entity.*;
 import com.TTLTTBDD.server.repositories.*;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -211,5 +213,43 @@ public class OderService {
                     return result;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void createOrder(Integer id_user, Integer id_payment_methop, List<ProductOrderDTO> products) {
+        // Kiểm tra người dùng và phương thức thanh toán
+        User user = userRepository.findById(id_user)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        PaymentMethop paymentMethop = paymentMethopRepository.findById(id_payment_methop)
+                .orElseThrow(() -> new IllegalArgumentException("Payment method not found"));
+
+        // Tạo Oder mới
+        Oder newOrder = new Oder();
+        newOrder.setIdUser(user);
+        newOrder.setDateOrder(LocalDate.now());
+        newOrder.setIdPaymentMethop(paymentMethop);
+        newOrder.setIdStatus(statusRepository.findById(5)
+                .orElseThrow(() -> new IllegalArgumentException("Status not found")));
+        oderRepository.save(newOrder);
+
+        // Xử lý từng sản phẩm
+        for (ProductOrderDTO productRequest : products) {
+            Product product = productRepository.findById(productRequest.getIdProduct())
+                    .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+            if (productRequest.getQuantity() <= 0) {
+                throw new IllegalArgumentException("Quantity must be greater than 0");
+            }
+
+            // Tính giá totalPrice
+            Double totalPrice = product.getPrize() * productRequest.getQuantity();
+
+            // Tạo OderDetail
+            OderDetail orderDetail = new OderDetail();
+            orderDetail.setIdOder(newOrder);
+            orderDetail.setIdProduct(product);
+            orderDetail.setQuantity(productRequest.getQuantity());
+            orderDetail.setTotalprice(totalPrice);
+            oderDetailRepository.save(orderDetail);
+        }
     }
 }
