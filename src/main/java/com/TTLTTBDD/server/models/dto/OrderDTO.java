@@ -21,5 +21,5 @@ public class OrderDTO {
     private LocalDate dateOrder;
     private String paymentMethodName;
     private StatusDTO statusName;
-    private List<OderDetailDTO> orderDetails;
+
 }
