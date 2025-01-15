@@ -16,26 +16,23 @@ public class OderController {
     @Autowired
     private OderService oderService;
 
-    // API: Lấy tất cả orders kèm tổng giá trị
-    @GetMapping
-    public ResponseEntity<?> getAllOrdersWithTotalPrice() {
+    @PostMapping("/place")
+    public ResponseEntity<?> placeOrder(
+            @RequestParam Integer idUser,
+            @RequestParam Integer idPaymentMethop) {
         try {
-            return ResponseEntity.ok(oderService.getAllOrdersWithTotalPrice());
+            oderService.placeOrder(idUser, idPaymentMethop);
+            return ResponseEntity.ok("Đặt đơn thành công!");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
-    // API: Thêm mới một order
-    @PostMapping("/place")
-    public ResponseEntity<?> placeOrder(
-            @RequestParam Integer idUser,
-            @RequestParam Integer idPaymentMethop,
-            @RequestParam Integer productId,
-            @RequestParam Integer quantity) {
+    // API: Lấy tất cả orders kèm tổng giá trị
+    @GetMapping
+    public ResponseEntity<?> getAllOrdersWithTotalPrice() {
         try {
-            Integer orderId = oderService.placeOrder(idUser, idPaymentMethop, productId, quantity);
-            return ResponseEntity.ok(orderId);
+            return ResponseEntity.ok(oderService.getAllOrdersWithTotalPrice());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -50,6 +47,17 @@ public class OderController {
         try {
             oderService.addProductToOrder(orderId, productId, quantity);
             return ResponseEntity.ok("Thêm sản phẩm thành công!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    // Thêm API này vào OderController
+    @GetMapping("/latest-id")
+    public ResponseEntity<?> getLastOrderId() {
+        try {
+            Integer lastOrderId = oderService.getLastOrderId();
+            return ResponseEntity.ok(Map.of("orderId", lastOrderId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

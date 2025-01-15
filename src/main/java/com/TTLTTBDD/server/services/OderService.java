@@ -18,20 +18,69 @@ public class OderService {
 
     @Autowired
     private OderRepository oderRepository;
-
     @Autowired
     private OderDetailRepository oderDetailRepository;
-
     @Autowired
-    private ProductRepository productRepository;
-
+    private CartRepository cartRepository;
+    @Autowired
+    private CartDetailRepository cartDetailRepository;
+    @Autowired
+    private PaymentMethopRepository paymentMethopRepository;
     @Autowired
     private StatusRepository statusRepository;
+    @Autowired
+    private ProductRepository productRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    @Autowired
-    private UserRepository userRepository;  // Thêm repository User
-    @Autowired
-    private PaymentMethopRepository paymentMethopRepository;  // Thêm repository PaymentMethop
+    public void placeOrder(Integer idUser, Integer idPaymentMethop) {
+        Cart cart = cartRepository.findByIdUser_Id(idUser)
+                .orElseThrow(() -> new IllegalArgumentException("Cart không tồn tại cho User này."));
+
+        List<CartDetail> cartDetails = cartDetailRepository.findAllByIdCart_Id(cart.getId());
+        if (cartDetails.isEmpty()) {
+            throw new IllegalArgumentException("Giỏ hàng trống, không thể đặt đơn.");
+        }
+
+        PaymentMethop paymentMethop = paymentMethopRepository.findById(idPaymentMethop)
+                .orElseThrow(() -> new IllegalArgumentException("Phương thức thanh toán không hợp lệ."));
+        Status status = statusRepository.findById(5)
+                .orElseThrow(() -> new IllegalArgumentException("Trạng thái không tồn tại."));
+
+        Oder oder = new Oder();
+        oder.setIdUser(cart.getIdUser());
+        oder.setDateOrder(LocalDate.now());
+        oder.setIdPaymentMethop(paymentMethop);
+        oder.setIdStatus(status);
+
+        oderRepository.save(oder);
+
+        for (CartDetail cartDetail : cartDetails) {
+            Product product = cartDetail.getIdProduct();
+            Integer cartQuantity = cartDetail.getQuantity();
+
+            BigDecimal price = BigDecimal.valueOf(product.getPrize());
+            BigDecimal totalPrice = price.multiply(BigDecimal.valueOf(cartQuantity));
+
+            OderDetail oderDetail = new OderDetail();
+            oderDetail.setIdOder(oder);
+            oderDetail.setIdProduct(product);
+            oderDetail.setQuantity(cartQuantity);
+            oderDetail.setTotalprice(totalPrice.doubleValue());
+
+            oderDetailRepository.save(oderDetail);
+        }
+
+        cartDetailRepository.deleteAll(cartDetails);
+    }
+
+    // Thêm phương thức này vào OderService
+    public Integer getLastOrderId() {
+        Oder lastOrder = oderRepository.findTopByOrderByIdDesc()
+                .orElseThrow(() -> new IllegalArgumentException("Không có đơn hàng nào trong cơ sở dữ liệu."));
+        return lastOrder.getId();
+    }
+
 
     // Lấy tất cả orders kèm tổng giá trị
     public List<Map<String, Object>> getAllOrdersWithTotalPrice() {
@@ -137,28 +186,6 @@ public class OderService {
         return details.stream()
                 .map(detail -> BigDecimal.valueOf(detail.getTotalprice()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    // Thêm mới một order
-    public Integer placeOrder(Integer idUser, Integer idPaymentMethop, Integer productId, Integer quantity) {
-        // Lấy thông tin người dùng và phương thức thanh toán từ cơ sở dữ liệu
-        User user = userRepository.findById(idUser)
-                .orElseThrow(() -> new IllegalArgumentException("User không tồn tại."));
-        PaymentMethop paymentMethop = paymentMethopRepository.findById(idPaymentMethop)
-                .orElseThrow(() -> new IllegalArgumentException("Phương thức thanh toán không tồn tại."));
-
-        // Tạo đối tượng order mới
-        Oder order = new Oder();
-        order.setIdUser(user);
-        order.setDateOrder(LocalDate.now()); // Ngày đặt hàng là ngày hiện tại
-        order.setIdPaymentMethop(paymentMethop);
-        order.setIdStatus(statusRepository.findById(5).orElseThrow(() -> new IllegalArgumentException("Trạng thái không hợp lệ"))); // Giả sử trạng thái mặc định là 1 (chưa xác nhận)
-
-        // Lưu order vào cơ sở dữ liệu
-        oderRepository.save(order);
-
-       addProductToOrder(order.getId(), productId, quantity);
-        return order.getId();
     }
 
     public List<Map<String, Object>> getAllOrderDetailsByOrderId(Integer orderId) {
