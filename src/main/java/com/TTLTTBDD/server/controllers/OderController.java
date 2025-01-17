@@ -1,5 +1,7 @@
 package com.TTLTTBDD.server.controllers;
 
+import com.TTLTTBDD.server.models.dto.OrderRequestDTO;
+import com.TTLTTBDD.server.models.dto.ProductOrderDTO;
 import com.TTLTTBDD.server.models.dto.OderDetailDTO;
 import com.TTLTTBDD.server.models.dto.OrderDTO;
 import com.TTLTTBDD.server.services.OderService;
@@ -8,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.List;
 
 import java.util.Map;
@@ -30,7 +33,7 @@ public class OderController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-        
+
     }
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<OrderDTO>> getOrdersByUserId(@PathVariable int userId) {
@@ -137,5 +140,16 @@ public class OderController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @PostMapping("/create")
+    public ResponseEntity<String> createOrder(@RequestBody OrderRequestDTO orderRequest) {
+        try {
+            oderService.createOrder(orderRequest.getIdUser(), orderRequest.getIdPaymentMethop(), orderRequest.getProducts());
+            return ResponseEntity.ok("Order created successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+        }
+    }
+
 }
 
